@@ -1,0 +1,8 @@
+--创建mysql中mqschema:登入mysql数据库#mysql -u root -p ; #Carson@20131111 ;后执行
+CREATE DATABASE mq;
+GRANT ALL ON mq.* TO 'root'@'%' IDENTIFIED BY 'Carson@20131111' WITH GRANT OPTION;   
+--创建mysql中table:
+USE mq;
+CREATE TABLE items AS SELECT * FROM fpq.`items` WHERE 1=2;
+
+  

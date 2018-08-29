@@ -1,0 +1,274 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.itmayiedu</groupId>
+  <artifactId>springboot-jsp</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  
+   <!-- 在pom.xml中引入spring-boot-start-parent,实现dependency management依赖管理，引入以后在申明其它dependency的时候就不需要version了-->
+   <parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.3.3.RELEASE</version>
+		<relativePath>../spring-boot-starter-parent</relativePath>
+	</parent>
+	<dependencies>
+		<!-- spring-boot-starter-web是springweb的核心组件，添加了Tomcat和Spring MVC,auto-configuration将假定正在开发一个web应用并相应地对Spring进行设置 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<!-- 使用jta-atomikos进行分布式事务管理 -->
+		<dependency> 
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jta-atomikos</artifactId>
+		</dependency>
+		<!-- 加载log4j的核心包，使用log4j进行日志记录；spring-boot-starter-log4j中已经有了log4j的slf4j依赖，因此：spring-boot-starter-web依赖中需要exclude掉log4j-over-slf4j -->
+        <dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-log4j</artifactId>
+		</dependency>
+		<!-- 使用excusions来排除spring-boot-starter对spring-boot-starter-logging的依赖，然后引入log4j-slf4j-impl -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter</artifactId>
+		    <exclusions>
+		        <exclusion>
+		            <groupId>org.springframework.boot</groupId>
+		            <artifactId>spring-boot-starter-logging</artifactId>
+		        </exclusion>
+		    </exclusions>
+		</dependency>
+		<!-- 使用AOP统一处理Web请求日志 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<!-- springboot中引入junit进行单元测试 -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-test</artifactId>
+		    <scope>test</scope>
+		</dependency>
+		
+		<!-- 引入fastjson插件 -->
+	    <dependency>
+	        <groupId>com.alibaba</groupId>
+	        <artifactId>fastjson</artifactId>
+	        <version>1.2.32</version>
+	    </dependency>
+    
+        <!-- 定义json用到，引入commons-beanutils-1.8.0.jar -->
+    	<dependency>
+	    	<groupId>fpq.json</groupId>
+	    	<artifactId>commons-beanutils</artifactId>
+	    	<version>1.8.0</version>
+	    	<scope>system</scope>
+	        <systemPath>${project.basedir}/src/main/resources/lib/jsonJar/commons-beanutils-1.8.0.jar</systemPath>
+	    </dependency>
+	    <!-- 定义json用到，引入commons-collections-3.2.1.jar -->
+    	<dependency>
+	    	<groupId>fpq.json</groupId>
+	    	<artifactId>commons-collections</artifactId>
+	    	<version>3.2.1</version>
+	    	<scope>system</scope>
+	        <systemPath>${project.basedir}/src/main/resources/lib/jsonJar/commons-collections-3.2.1.jar</systemPath>
+	    </dependency>
+	    <!-- 定义json用到，引入commons-lang-2.6.jar -->
+    	<dependency>
+	    	<groupId>fpq.json</groupId>
+	    	<artifactId>commons-lang</artifactId>
+	    	<version>2.6</version>
+	    	<scope>system</scope>
+	        <systemPath>${project.basedir}/src/main/resources/lib/jsonJar/commons-lang-2.6.jar</systemPath>
+	    </dependency>
+	    <!-- 定义json用到，引入commons-logging-1.1.1.jar -->
+    	<dependency>
+	    	<groupId>fpq.json</groupId>
+	    	<artifactId>commons-logging</artifactId>
+	    	<version>1.1.1</version>
+	    	<scope>system</scope>
+	        <systemPath>${project.basedir}/src/main/resources/lib/jsonJar/commons-logging-1.1.1.jar</systemPath>
+	    </dependency>
+	    <!-- 定义json用到，引入ezmorph-1.0.6.jar -->
+    	<dependency>
+	    	<groupId>fpq.json</groupId>
+	    	<artifactId>ezmorph</artifactId>
+	    	<version>1.0.6</version>
+	    	<scope>system</scope>
+	        <systemPath>${project.basedir}/src/main/resources/lib/jsonJar/ezmorph-1.0.6.jar</systemPath>
+	    </dependency>
+	    <!-- 定义json用到，引入json-lib-2.4-jdk15.jar-->
+    	<dependency>
+	    	<groupId>fpq.json</groupId>
+	    	<artifactId>json-lib-2.4-jdk15</artifactId>
+	    	<version>2.4</version>
+	    	<scope>system</scope>
+	        <systemPath>${project.basedir}/src/main/resources/lib/jsonJar/json-lib-2.4-jdk15.jar</systemPath>
+	    </dependency> 
+	    <!-- <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <version>2.4</version>
+        </dependency> -->
+	    <!-- HttpPost需要的jar 引入json-lib-2.4-jdk15.jar -->
+    	<dependency>
+	    	<groupId>com.common</groupId>
+	    	<artifactId>NotifyClient</artifactId>
+	    	<version>2.4</version>
+	    	<scope>system</scope>
+	        <systemPath>${project.basedir}/src/main/resources/lib/NotifyClient.jar</systemPath>
+	    </dependency>
+	    
+	    <!-- HttpClient调用接口所需求的jar包commons-cli.jar，https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+	    <dependency>
+		    <groupId>commons-cli</groupId>
+		    <artifactId>commons-cli</artifactId>
+		    <version>1.2</version>
+		</dependency>
+		<!-- HttpClient调用接口所需求的jar包commons-codec.jar-->
+		<dependency>
+		    <groupId>commons-codec</groupId>
+		    <artifactId>commons-codec</artifactId>
+		    <version>1.9</version>
+		</dependency>
+		<!-- HttpClient调用接口所需求的jar包fluent-hc.jar-->
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>fluent-hc</artifactId>
+		    <version>4.5</version>
+		</dependency>
+		<!-- HttpClient调用接口所需求的jar包httpclient.jar-->
+        <dependency>  
+		    <groupId>org.apache.httpcomponents</groupId>  
+		    <artifactId>httpclient</artifactId>  
+		    <!-- <version>4.5.1</version>  --> 
+		</dependency>  
+        <!-- HttpClient调用接口所需求的jar包httpclient-cache.jar-->
+        <dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpclient-cache</artifactId>
+		    <version>4.3.4</version>
+		</dependency>   
+		<!-- HttpClient调用接口所需求的jar包httpclient-win.jar-->
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpclient-win</artifactId>
+		    <version>4.5.1</version>
+		</dependency>
+        <!-- HttpClient调用接口所需求的jar包httpcore.jar-->
+        <dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpcore</artifactId>
+		    <!-- <version>4.4.3</version> -->
+		</dependency>                    
+		<!-- HttpClient调用接口所需求的jar包httpcore-ab.jar-->
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpcore-ab</artifactId>
+		    <version>4.4.3</version>
+		</dependency>
+        <!-- HttpClient调用接口所需求的jar包httpcore-nio.jar-->
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpcore-nio</artifactId>
+		    <version>4.4.3</version>
+		</dependency>
+	    <!-- HttpClient调用接口所需求的jar包httpmime.jar-->
+	    <dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpmime</artifactId>
+		    <!-- <version>4.5.1</version> -->
+		</dependency>
+        <!-- HttpClient调用接口所需求的jar包jna.jar-->
+		<dependency>
+		    <groupId>net.java.dev.jna</groupId>
+		    <artifactId>jna</artifactId>
+		    <version>4.4.0</version>
+		</dependency>
+        <!-- HttpClient调用接口所需求的jar包jna-platform.jar-->            
+		<dependency>
+		    <groupId>net.java.dev.jna</groupId>
+		    <artifactId>jna-platform</artifactId>
+		    <version>4.1.0</version>
+		</dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>21.0</version>
+        </dependency>             
+        <!-- 引入自己封装的对接口的参数进行加密和签名的jar包encryptSignRequest1.0.jar -->
+    	<!-- <dependency>
+	    	<groupId>com.fpq</groupId>
+	    	<artifactId>commons-collections</artifactId>
+	    	<version>1.1</version>
+	    	<scope>system</scope>
+	        <systemPath>${project.basedir}/src/main/resources/lib/encryptSignRequest1.1.jar</systemPath>
+	    </dependency> -->
+                                    
+	    <!-- quartz定时调度的核心包 -->
+	    <!-- <dependency>
+		    <groupId>org.quartz-scheduler</groupId>
+		    <artifactId>quartz</artifactId>
+		    <version>2.2.1</version>
+		</dependency>
+		quartz中内置的job任务jar包
+		<dependency>
+		    <groupId>org.quartz-scheduler</groupId>
+		    <artifactId>quartz-jobs</artifactId>
+		    <version>2.2.1</version>
+		</dependency>   -->
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+			     <!-- 直接Main启动spring，如果使用maven 的spring-boot:run的话是不需要此配置项 -->
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<maimClass>com.itmayiedu.app.App</maimClass>
+					<fork>true</fork><!-- 热部署生效必须加 -->
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+
+			</plugin>
+		</plugins>
+	</build>
+  
+</project>

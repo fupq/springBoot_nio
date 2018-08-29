@@ -1,0 +1,186 @@
+gc:garbage collection,垃圾回收；
+############################# 1.垃圾回收机制 ##########################################
+1.什么是垃圾回收机制？
+	垃圾回收机制不定时向堆内存清理不可达对象；
+	C语言和C++语言必须要手动清理不用的对象，但java语言可不用手动清理，由gc线程不定时的在堆内存中清理不可达对象。
+2.手动回收垃圾System.gc();,不一定会调用finalize()方法；当gc线程回收堆内存不可达对象之前可能会调用finalize（）方法，
+	注：finalize  ['faɪn(ə)laɪz] 完成，最终定案；
+   
+ ############################ 2.内存溢出和内存泄漏的区别？ #############################
+ 内存泄露：指程序中动态分配内存给一些临时对象，但是对象不会被GC所回收，它始终占用内存。即被分配的对象可达但已无用。
+内存溢出：指程序运行过程中无法申请到足够的内存而导致的一种错误。内存溢出通常发生于OLD段或Perm段垃圾回收后，
+		仍然无内存空间容纳新的Java对象的情况。
+一。内存泄露的几种场景：
+1、长生命周期的对象持有短生命周期对象的引用
+            这是内存泄露最常见的场景，也是代码设计中经常出现的问题。
+            例如：在全局静态map中缓存局部变量，且没有清空操作，随着时间的推移，这个map会越来越大，造成内存泄露。
+2、修改hashset中对象的参数值，且参数是计算哈希值的字段
+             当一个对象被存储进HashSet集合中以后，就不能修改这个对象中的那些参与计算哈希值的字段，
+             否则对象修改后的哈希值与最初存储进HashSet集合中时的哈希值就不同了，在这种情况下，
+             即使在contains方法使用该对象的当前引用作为参数去HashSet集合中检索对象，也将返回找不到对象的结果，
+             这也会导致无法从HashSet集合中删除当前对象，造成内存泄露。
+3、机器的连接数和关闭时间设置长时间开启非常耗费资源的连接，也会造成内存泄露。
+
+二。内存溢出的场景
+1.堆内存溢出（outOfMemoryError：java heap space）
+       在jvm规范中，堆中的内存是用来生成对象实例和数组的。
+       如果细分，堆内存还可以分为年轻代和年老代，年轻代包括一个eden区和两个survivor区。
+       当生成新对象时，内存的申请过程如下：
+      a、jvm先尝试在eden区分配新建对象所需的内存；
+      b、如果内存大小足够，申请结束，否则下一步；
+      c、jvm启动youngGC，试图将eden区中不活跃的对象释放掉，释放后若Eden空间仍然不足以放入新对象，
+      	则试图将部分Eden中活跃对象放入Survivor区；
+      d、Survivor区被用来作为Eden及old的中间交换区域，当OLD区空间足够时，Survivor区的对象会被移到Old区，否则会被保留在Survivor区；
+      e、 当OLD区空间不够时，JVM会在OLD区进行full GC；
+      f、full GC后，若Survivor及OLD区仍然无法存放从Eden复制过来的部分对象，导致JVM无法在Eden区为新对象创建内存区域，
+      	则出现”out of memory错误”： outOfMemoryError：java heap space
+2. 方法区内存溢出（outOfMemoryError：permgem space）
+       在jvm规范中，方法区主要存放的是类信息、常量、静态变量等。
+       所以如果程序加载的类过多，或者使用反射、gclib等这种动态代理生成类的技术，就可能导致该区发生内存溢出，
+       一般该区发生内存溢出时的错误信息为： outOfMemoryError：permgem space
+ 3、线程栈溢出（java.lang.StackOverflowError）
+       线程栈时线程独有的一块内存结构，所以线程栈发生问题必定是某个线程运行时产生的错误。
+       一般线程栈溢出是由于递归太深或方法调用层级过多导致的。
+       发生栈溢出的错误信息为： java.lang.StackOverflowError
+为了避免内存泄露，在编写代码的过程中可以参考下面的建议：
+1、尽早释放无用对象的引用
+2、使用字符串处理，避免使用String，应大量使用StringBuffer，每一个String对象都得独立占用内存一块区域
+3、尽量少用静态变量，因为静态变量存放在永久代（方法区），永久代基本不参与垃圾回收
+4、避免在循环中创建对象
+5、开启大型文件或从数据库一次拿了太多的数据很容易造成内存溢出，所以在这些地方要大概计算一下数据量的最大值是多少，
+	并且设定所需最小及最大的内存空间值。 
+
+################################################# jemeter压测jvm参数调优 ##################################################3333
+###################1.测试串行回收器场景下的吞吐量
+-XX:+PrintGCDetails 
+-Xmx32M 
+-Xms32M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseSerialGC
+-XX:PermSize=32M
+启动时77次GC，24次/秒
+注：-XX:+UseSerialGC      串行回收
+扩大堆最大可用值-Xmx的大小为512
+-XX:+PrintGCDetails 
+-Xmx512M 
+-Xms32M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseSerialGC
+-XX:PermSize=32M
+启动时77次GC, 
+（压测：10X500，351次/秒177次GC，）
+（压测：20X500，420次/秒383次GC，）
+
+扩大堆最大可用值-Xmx的大小为1024
+-XX:+PrintGCDetails 
+-Xmx1024M 
+-Xms32M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseSerialGC
+-XX:PermSize=32M
+启动时64次GC, 
+（压测：10X500，280次/秒174次GC，）
+（压测：20X500，345次/秒382次GC，）
+扩大初始分配的非堆内存值-XX:PermSize为100
+-XX:+PrintGCDetails 
+-Xmx1024M 
+-Xms32M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseSerialGC
+-XX:PermSize=100M
+启动时64次GC, 
+（压测：10X500，281次/秒次170GC，）106
+（压测：20X500，357次/秒次371GC，）201
+扩大堆初始值-Xms为1024
+-XX:+PrintGCDetails 
+-Xmx1024M 
+-Xms1024M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseSerialGC
+-XX:PermSize=100M
+启动时次2GC, 
+（压测：10X500，333次/秒次10GC，）8
+（压测：20X500，439次/秒次24GC，）14
+结论：当堆初始值大小很小时，jvm会做大量的gc,影响了系统性能；
+
+###############################2.测试并行回收器场景下的吞吐量
+-XX:+PrintGCDetails 
+-Xmx32M 
+-Xms32M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseParNewGC
+-XX:PermSize=32M
+启动时次GC，77次/秒
+（压测：10X500，14次/秒77次GC，）
+（压测：20X500，24次/秒77次GC，）
+偶发性：java.lang.OutOfMemoryError: Java heap space
+注：-XX:+UseParNewGC     串行回收
+扩大堆最大可用值-Xmx的大小为512
+-XX:+PrintGCDetails 
+-Xmx512M 
+-Xms32M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseParNewGC
+-XX:PermSize=32M
+启动时次67GC, 
+（压测：10X500，322次/秒165次GC，）
+（压测：20X500，447次/秒354次GC，）
+
+扩大堆最大可用值-Xmx的大小为1024
+-XX:+PrintGCDetails 
+-Xmx1024M 
+-Xms32M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseParNewGC
+-XX:PermSize=32M
+启动时次67GC, 
+（压测：10X500，332次/秒173次GC，）
+（压测：20X500，360次/秒次365GC，）
+扩大初始分配的非堆内存值-XX:PermSize为100
+-XX:+PrintGCDetails 
+-Xmx1024M 
+-Xms32M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseParNewGC
+-XX:PermSize=100M
+启动时次65GC, 
+（压测：10X500，326次/秒168次GC，）
+（压测：20X500，431次/秒363次GC，）
+扩大堆初始值-Xms为1024
+-XX:+PrintGCDetails 
+-Xmx1024M 
+-Xms1024M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UseParNewGC
+-XX:PermSize=100M
+启动时次2GC, 
+（压测：10X500，333次/秒10次GC，）
+（压测：20X500，414次/秒24次GC，）
+结论：当堆初始值大小很小时，jvm会做大量的gc,影响了系统性能；
+
+#######################################3.并行合并回收
+性能最高新生代和老年代都做回收
+
+-XX:+PrintGCDetails 
+-Xmx1024M 
+-Xms1024M
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:UseParallelGC  :选择垃圾收集器为并行收集器。此配置仅对年轻代有效。可以同时并行多个垃圾收集线程，但此时用户线程必须停止。
+-XX:+UseParallelOldGC
+-XX:ParallelGCThreads=8（并行回收线程数：cpu核数X2）
+-XX:PermSize=100M
+启动时次0GC, 
+（压测：10X500，323次/秒0次GC，）
+（压测：20X500，410次/秒0次GC，）
+（压测：20X500，460次/秒0次GC，）
+
+注：
+-XX:+UseSerialGC： 相当于”Serial” + “SerialOld”，这个方案直观上就应该是性能最差的，我的实验证明也确实如此；
+-XX:+UseParallelGC： 相当于” Parallel Scavenge” + “SerialOld”，也就是说，在young generation中是多线程处理，但是在tenured generation中则是单线程；
+-XX:+UseParallelOldGC： 相当于” Parallel Scavenge” + “ParallelOld”，都是多线程并行处理；
+只用UseParallelGC与用了UseParallelOldGC背后实际的collector不一样，前者在HotSpot VM内是PSMarkSweep，后者是PSParallelCompact。 
+ -XX:+UseParallelGC
+指 定在 New Generation 使用 parallel collector, 并行收集 , 暂停 app threads, 同时启动多个垃圾回收 thread, 不能和 CMS gc 一起使用 . 系统吨吐量优先 , 但是会有较长长时间的 app pause, 后台系统任务可以使用此 gc
+-XX:+UseParNewGC
+指定在 New Generation 使用 parallel collector, 是 UseParallelGC 的 gc 的升级版本 , 有更好的性能或者优点 , 可以和 CMS gc 一起使用
+	

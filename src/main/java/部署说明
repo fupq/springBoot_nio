@@ -1,0 +1,10 @@
+1.使用maven进行打包
+	删除掉原有的包：#mvn clean
+		eg：D:\springBoot\springBootWorkSpase-20171208使用Schedule进行调度\springBootWorkSpase\springboot-jsp>mvn clean
+	打新包：#mvn package
+		eg:D:\springBoot\springBootWorkSpase-20171208使用Schedule进行调度\springBootWorkSpase\springboot-jsp>mvn package
+2.部署（运行）
+	# java -jar springboot-jsp-0.0.1-SNAPSHOT.war
+	eg:D:\springBoot\springBootWorkSpase-20171208使用Schedule进行调度\springBootWorkSpase\springboot-jsp\target>java -jar springboot-jsp-0.0.1-SNAPSHOT.war
+3.停止运行
+	Ctrl + C
